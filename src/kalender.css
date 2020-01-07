@@ -1,0 +1,76 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    overflow-y: scroll !important;
+}
+/* .container-fluid{
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-left: auto;
+    margin-right: auto;
+} */
+.postpone{
+    background: #ff4444 !important;
+}
+
+.berjalan{
+    background: #00C851 !important;
+}
+
+.unknown_postpone{
+    background: #ffbb33 !important;
+}
+
+.terlaksana{
+    background: #33b5e5 !important;
+}
+.fc-prev-button:hover, .fc-next-button:hover {
+    /* background-color: transparent !important; */
+    color: black !important;
+    /* opacity: 0.9 !important; */
+}
+.fc-prev-button > span.fa-caret-left:active, .fc-next-button > span.fa-caret-right:active {
+    background: none !important;
+    background-color: transparent !important;
+}
+.fc-day-number {
+    float: left !important;
+    color: #757575 !important;
+    font-size: 2em;
+    font-weight: 500 !important;
+}
+
+.fc-day-header {
+    background-color: #4285f4;
+    border: none !important;
+    height: 2em;
+}
+
+.fc-day-number:hover {
+    color: black !important;
+}
+
+.fc-day-header span {
+    color: white;
+    font-weight: bold !important;
+    font-size: 1.2em;
+    /* letter-spacing: 0.5px; */
+}
+
+td.fc-today {
+    background: rgb(243, 243, 243);
+}
+
+.fc th {
+    padding-top: 0.3em !important;
+}
+
+.fc table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: rgb(255, 255, 255);
+}
+
+.fc-logout-button {
+    background-color: red !important;
+}
