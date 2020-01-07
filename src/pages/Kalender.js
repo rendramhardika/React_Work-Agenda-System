@@ -20,7 +20,7 @@ function Kalender() {
     const [detailAgendaVisible, setDetailAgendaVisible] = useState(false)
     const [agendas, setAgendas] = useState([]);
     const [unitsId, setUnitsId] = useState([])
-    const [unitsName, setUnitsName] = useState([])
+    // const [unitsName, setUnitsName] = useState([])
     const [jabatan] = useState(null)
 
     useEffect(() => {
@@ -58,7 +58,7 @@ function Kalender() {
         });
         // setUnits(...units, {unitId:unitsIdData, unitName:unitsNameData})
         setUnitsId(unitsIdData)
-        setUnitsName(unitsNameData)
+        // setUnitsName(unitsNameData)
     }
 
     // async function getJabatan(unit_id) {
