@@ -10,10 +10,12 @@ body {
     margin-right: auto;
 } */
 .postpone{
+    border: 1px solid #fff!important;
     background: #ff4444 !important;
 }
 
 .berjalan{
+    border: 1px solid #fff!important;
     background: #00C851 !important;
 }
 
@@ -22,8 +24,38 @@ body {
 }
 
 .terlaksana{
+    border: 1px solid #fff!important;
     background: #33b5e5 !important;
 }
+
+.fc-event {
+    border: 1px solid #FFF !important;
+}
+
+.fc-content {
+    color: #FFF!important;
+    font-size: 14px!important;
+    padding: 2px 0px!important;
+    font-weight: 450 !important;
+}
+
+.fc-content > span.fc-time {
+    font-weight: bold !important;
+}
+
+.fc-event:hover {
+    opacity: 0.8;
+}
+
+.fc-list-button:focus, .fc-month-button:focus, .fc-agendaDay-button:focus {
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+.fc-day-number:hover {
+    color: black !important;
+}
+
 .fc-prev-button:hover, .fc-next-button:hover {
     /* background-color: transparent !important; */
     color: black !important;
@@ -74,3 +106,7 @@ td.fc-today {
 .fc-logout-button {
     background-color: red !important;
 }
+
+/* .detail-agenda-modal{
+    width: 400px!important;
+} */

@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react'
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
+import interactionPlugin from "@fullcalendar/interaction";
 import bootstrapPlugin from "@fullcalendar/bootstrap";
 import '../../src/kalender.css'
 import Axios from "axios";
-import { Row, Modal, Col, Select, Drawer } from 'antd';
+import { Row, Modal, Col, Select, Button } from 'antd';
 import Swal from 'sweetalert2';
-import { MDBIcon } from 'mdbreact';
+import { MDBIcon, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter } from 'mdbreact';
 
 const { Option } = Select
 
@@ -18,13 +18,14 @@ function Kalender() {
     const [holidayModalVisible, setHolidayModalVisible] = useState(false);
     const [holidayConfirmLoading, setHolidayConfirmLoading] = useState(false)
     const [detailAgendaVisible, setDetailAgendaVisible] = useState(false)
+    const [units, setUnits] = useState([])
+    const [roles, setRoles] = useState(null)
     const [agendas, setAgendas] = useState([]);
-    const [unitsId, setUnitsId] = useState([])
-    // const [unitsName, setUnitsName] = useState([])
-    const [jabatan] = useState(null)
+    const [unit, setUnit] = useState()
+    const [role, setRole] = useState()
+
 
     useEffect(() => {
-        // fetchAgendas(unit, jabatan)
         getUnits()
     }, [])
 
@@ -39,55 +40,57 @@ function Kalender() {
     }
 
     async function getUnits() {
-        let unitsIdData = []
-        let unitsNameData = []
         let res = await Axios.get(
             'https://api.usu.ac.id/0.1/units'
         );
         let resData = await res.data.data;
-        resData.forEach(unit => {
-            unitsIdData.push(unit.id)
-            unitsNameData.push(unit.name)
-            if ('children' in unit === true) {
-                unit.children.forEach(subUnit => {
 
-                    unitsIdData.push(subUnit.id)
-                    unitsNameData.push(subUnit.name)
+        resData.forEach(unit => {
+            if ('children' in unit === true) {
+                let subUnit = unit['children']
+                subUnit.forEach(data => {
+                    resData.push(data)
+                    if ('children' in data === true) {
+                        let subSubUnit = data['children']
+                        subSubUnit.forEach(data => {
+                            resData.push(data)
+                            if ('children' in data === true) {
+                                let subSubSubUnit = data['children']
+                                resData.push(...subSubSubUnit)
+                            }
+                        })
+                    }
                 })
             }
-        });
-        // setUnits(...units, {unitId:unitsIdData, unitName:unitsNameData})
-        setUnitsId(unitsIdData)
-        // setUnitsName(unitsNameData)
+        })
+
+        setUnits(resData)
     }
 
-    // async function getJabatan(unit_id) {
-    //     let res = await Axios.get(
-    //         `https://api.usu.ac.id/0.1/units/${unit_id}`
-    //     )
-    //     let resData = await res.data.data;
-    //     setJabatan(resData.officials)
-    // }
+    async function getRoles(unit) {
+        let rolesData = [{ id: 'semua jabatan', title: 'Semua Jabatan' }]
+        let res = await Axios.get(
+            `https://api.usu.ac.id/0.1/units/${unit}`
+        );
+        let resData = await res.data.data.officials
+        rolesData.push(...resData)
+        setRoles(rolesData)
+
+    }
 
     const handleUnitChange = (value) => {
-        // getJabatan(value)
-
-        fetchAgendas(value, "")
+        setUnit(value)
+        getRoles(value)
     }
 
     const handleJabatanChange = (value) => {
-        // fetchAgendas()
+        setRole(value)
+        value === "semua jabatan" ? fetchAgendas(unit, "") : fetchAgendas(unit, role)
     }
 
     const handleDateClick = info => {
-        console.log(agendas)
-        // jabatan.forEach(j=>{console.log(j)})
         var dateBox = info.dayEl.className;
-        if (dateBox.includes("fc-past")) {
-            disableAddAgenda();
-        } else {
-            addAgenda();
-        }
+        dateBox.includes("fc-past") ? disableAddAgenda() : addAgenda()
     };
 
     const handleAgendaClick = info => {
@@ -95,6 +98,16 @@ function Kalender() {
         setDetailAgendaVisible(!detailAgendaVisible)
         console.log(agendaData.status_data)
         agendaData.status_data.forEach(status => { console.log(status) })
+    }
+
+    const handleEventRender = info => {
+        const status = info.event._def.extendedProps.status_agenda
+        if (status === 'terlaksana') {
+            info.el.classList.add('terlaksana')
+        }
+        else {
+            info.el.classList.add('berjalan')
+        }
     }
 
     const onClose = () => {
@@ -151,6 +164,23 @@ function Kalender() {
         }, 2000);
     }
 
+    const eventColorCheck = () => {
+        agendas.map(agenda => {
+            if (agenda.status === 'berjalan') {
+                return 'green'
+            }
+            else if (agenda.status === 'tunda') {
+                return 'red'
+            } else {
+                return 'blue'
+            }
+        })
+    }
+
+    const toggleDetailAgenda = () => {
+        setDetailAgendaVisible(!detailAgendaVisible)
+    }
+
     return (
 
         <div className="container-fluid">
@@ -195,24 +225,24 @@ function Kalender() {
             <Row className="no-gutters justify-content-start">
                 <Col span={6} className="mb-3 mr-1">
                     <label><strong>Pilih Unit Kerja</strong></label><br />
-                    <Select defaultValue="Unit" onChange={handleUnitChange} style={{ width: 300 }}>
+                    <Select showSearch defaultValue="Unit" optionFilterProp="children" onChange={handleUnitChange} style={{ width: 300 }} filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}>
                         {
-                            unitsId.map(unit => (
-                                <Option key={unit}>{unit}</Option>
+                            units.map(unit => (
+                                <Option key={unit.id}>{unit.name}</Option>
                             ))
                         }
                     </Select>
                 </Col>
                 {
-                    jabatan === null ?
+                    roles === null ?
                         <Col></Col>
                         :
                         <Col span={6} className="mb-3 mr-1">
                             <label><strong>Pilih Jabatan</strong></label><br />
                             <Select defaultValue="Jabatan" onChange={handleJabatanChange} style={{ width: 300 }}>
                                 {
-                                    jabatan.map(j => (
-                                        <Option key={j.id}>{j.title}</Option>
+                                    roles.map(role => (
+                                        <Option key={role.id}>{role.title}</Option>
                                     ))
                                 }
                             </Select>
@@ -228,6 +258,8 @@ function Kalender() {
                     themeSystem="bootstrap"
                     defaultView="dayGridMonth"
                     events={agendas !== null ? agendas : ''}
+                    eventRender={handleEventRender}
+                    eventLimit={true}
                     eventClick={
                         handleAgendaClick
                     }
@@ -290,15 +322,20 @@ function Kalender() {
             </Row>
 
             {/* Placement for Detail Agenda */}
-            <Drawer
-                onClose={onClose}
-                placement="right"
-                closable={true}
-                title="Detail Agenda"
-                visible={detailAgendaVisible}
-            >
+            <MDBModal isOpen={detailAgendaVisible} toggle={toggleDetailAgenda} fullHeight position="right" >
+                <MDBModalHeader toggle={toggleDetailAgenda}>Detail Agenda</MDBModalHeader>
+                <MDBModalBody>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+              magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+              consequat.
+                </MDBModalBody>
+                <MDBModalFooter >
+                    <Button type="danger" size="large">Hapus Agenda</Button>
+                    <Button type="primary" size="large">Ubah Agenda</Button>
+                </MDBModalFooter>
 
-            </Drawer>
+            </MDBModal>
+
 
             {/* ADD AGENDA MODAL */}
             <Modal

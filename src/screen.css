@@ -1,0 +1,24 @@
+.left-header{
+    position: relative;
+}
+.unitKerja{
+    text-rendering: optimizeLegibility;
+    flex-wrap: wrap;
+}
+
+.ant-carousel .slick-slide {
+    text-align: center;
+    height: 160px;
+    line-height: 160px;
+    background: #364d79;
+    overflow: hidden;
+  }
+  
+  .ant-carousel .slick-slide h3 {
+    color: #fff;
+  }
+
+.date-wrap {
+    height: 240px;
+    background-color: #FAFFC8
+}
